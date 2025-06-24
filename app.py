@@ -16,7 +16,24 @@ import tempfile
 from typing import List, Tuple, Dict
 from io import BytesIO
 
-from paddleocr import PaddleOCR
+# Import conditionnel de PaddleOCR avec gestion d'erreur
+try:
+    # Essayer d'importer setuptools d'abord si nécessaire
+    try:
+        import setuptools
+    except ImportError:
+        # Si setuptools n'est pas disponible, continuer quand même
+        pass
+    
+    from paddleocr import PaddleOCR
+    PADDLEOCR_AVAILABLE = True
+except ImportError as e:
+    st.error(f"❌ Erreur d'import PaddleOCR: {e}")
+    st.error("PaddleOCR n'a pas pu être importé. Vérifiez les dépendances système.")
+    st.info("💡 Suggestion: Redémarrez l'application ou contactez l'administrateur.")
+    st.stop()
+    PADDLEOCR_AVAILABLE = False
+
 from pdf2image import convert_from_path
 from openai import OpenAI
 
@@ -37,7 +54,13 @@ st.set_page_config(
 # ───────────────────────── CACHE OCR ────────────────────────────────
 @st.cache_resource
 def init_ocr():
-    return PaddleOCR(use_angle_cls=True, lang=OCR_LANG)
+    try:
+        return PaddleOCR(use_angle_cls=True, lang=OCR_LANG)
+    except Exception as e:
+        st.error(f"❌ Erreur lors de l'initialisation de PaddleOCR: {e}")
+        st.error("Problème avec les dépendances PaddleOCR. Vérifiez l'installation.")
+        st.stop()
+        return None
 
 # ───────────────────────── FONCTIONS CORE (reprises du code original) ──────────────────────────
 def extract_text_coords_pct(img_path: str, ocr_engine) -> Tuple[List[Tuple[str, float, float]], int]:
