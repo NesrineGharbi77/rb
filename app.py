@@ -298,7 +298,7 @@ def main():
                 preview_cols = st.columns(min(3, len(selected_pages)))
                 for i, page_idx in enumerate(selected_pages[:3]):
                     with preview_cols[i]:
-                        st.image(images[page_idx], caption=f"Page {page_idx+1}", use_column_width=True)
+                        st.image(images[page_idx], caption=f"Page {page_idx+1}", use_container_width=True)
     
     if not selected_pages:
         st.warning("Veuillez sélectionner au moins une page")
@@ -358,7 +358,7 @@ def main():
                 st.subheader(f"📄 Page {display_page + 1}")
                 
                 # Aperçu de l'image
-                st.image(page_data['image'], caption=f"Page {display_page + 1}", use_column_width=True)
+                st.image(page_data['image'], caption=f"Page {display_page + 1}", use_container_width=True)
                 
                 # Informations générales
                 if 'error' not in result:
