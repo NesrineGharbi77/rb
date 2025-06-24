@@ -47,8 +47,11 @@ def extract_text_coords_pct(img_path: str, ocr_engine) -> Tuple[List[Tuple[str, 
         return [], 1
     h, w = img.shape[:2]
     out = []
-    for page in ocr_engine.ocr(img, cls=True):
-        for line in page:
+    result = ocr_engine.ocr(img, cls=True)
+    
+    # PaddleOCR peut retourner None ou une liste vide
+    if result and result[0]:
+        for line in result[0]:
             txt, conf = line[1]
             if conf < 0.5:
                 continue
@@ -57,6 +60,7 @@ def extract_text_coords_pct(img_path: str, ocr_engine) -> Tuple[List[Tuple[str, 
             y_px = min(p[1] for p in bbox)
             x_pct = x_px / w * 100
             out.append((txt, x_pct, y_px))
+    
     return out, w
 
 def cluster_x(xs: List[float], gap: float = AMT_CLUSTER_GAP) -> List[List[float]]:
