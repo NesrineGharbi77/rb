@@ -24,7 +24,7 @@ from openai import OpenAI
 X_MIN_PCT = 60.0
 AMT_CLUSTER_GAP = 3.0
 OCR_LANG = "fr"
-API_KEY = "sk-102faabc56b544329cb4071690357f18"  # Clé API fixe du code original
+API_KEY = st.secrets["DEEPSEEK_API_KEY"]  # Clé API depuis les secrets Streamlit
 API_BASE_URL = "https://api.deepseek.com"
 
 # Configuration de la page
@@ -37,7 +37,7 @@ st.set_page_config(
 # ───────────────────────── CACHE OCR ────────────────────────────────
 @st.cache_resource
 def init_ocr():
-    return PaddleOCR(lang=OCR_LANG, show_log=False)
+    return PaddleOCR(use_angle_cls=True, lang=OCR_LANG)
 
 # ───────────────────────── FONCTIONS CORE (reprises du code original) ──────────────────────────
 def extract_text_coords_pct(img_path: str, ocr_engine) -> Tuple[List[Tuple[str, float, float]], int]:
@@ -206,15 +206,12 @@ def main():
     st.title("🏦 Traitement de Relevés Bancaires")
     st.markdown("Pipeline OCR → IA → Tableau modifiable → Export")
     
-    # Sidebar pour configuration
-    with st.sidebar:
-        st.header("⚙️ Configuration")
-        api_key = st.text_input("Clé API DeepSeek", type="password", 
-                               help="Votre clé API DeepSeek pour l'analyse")
-        
-        if not api_key:
-            st.warning("Veuillez saisir votre clé API DeepSeek")
-            return
+    # Vérification de la clé API
+    try:
+        api_key_test = st.secrets["DEEPSEEK_API_KEY"]
+    except Exception as e:
+        st.error("❌ Clé API DeepSeek non configurée dans les secrets Streamlit")
+        st.stop()
     
     # Zone d'upload
     st.header("📁 Upload du PDF")
@@ -294,7 +291,7 @@ def main():
         for i, page_idx in enumerate(selected_pages):
             with st.spinner(f"Traitement page {page_idx+1}..."):
                 try:
-                    full_text, result = process_page(images[page_idx], ocr_engine, api_key)
+                    full_text, result = process_page(images[page_idx], ocr_engine)
                     st.session_state.processed_data[page_idx] = {
                         'result': result,
                         'full_text': full_text,
