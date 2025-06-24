@@ -3,3 +3,4 @@ libgl1-mesa-glx
 libglib2.0-0
 python3-setuptools
 build-essential
+setuptools>=68.0.0
