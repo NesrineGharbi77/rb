@@ -1,5 +1,6 @@
 setuptools>=65.0.0
 wheel>=0.37.0
+Cython>=0.29.0
 streamlit>=1.28.0
 pandas>=2.0.0
 numpy>=1.24.0,<2.0.0
